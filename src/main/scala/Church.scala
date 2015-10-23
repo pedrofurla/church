@@ -13,6 +13,10 @@ object Church {
 
   succ ≡ λn.λf.λx. f (n f x)
 
+  succ 0 ≡ (λn.λf.λx. f (n f x)) λf.λx. x
+         ≡  λf.λx. f ((λf.λx. x) f x)
+         ≡  λf.λx. f x
+
   succ 1 ≡ λf.λx. f ( (λf.λx. f x) f x) ≡ λf.λx. f (f x) )
 
   plus ≡ λm.λn.λf.λx. m f (n f x)
