@@ -24,7 +24,7 @@ object Term {
 
   implicit val TermShow2:Show[Term] = Show.shows[Term]{
     case Var(s) => s
-    case Apply(Apply(x,y), Apply(a,b)) => " (" + A(x,y).shows + ") (" + A(a,b).shows + ") "
+    case Apply(Apply(x,y), Apply(a,b)) => A(x,y).shows + " (" + A(a,b).shows + ") "
     case Apply(l@Lambda(v,t), Apply(a,b)) => " (" + (l:Term).shows + ") (" + A(a,b).shows + ") "
     case Apply(l@Lambda(v,t), y) => " (" + (l:Term).shows + ") " + y.shows
     case Apply(x, Apply(a,b)) => x.shows + " (" + A(a,b).shows+") "
@@ -32,9 +32,48 @@ object Term {
     case Lambda(s, t) => "\\" + s + "." + t.shows
   }
 }
+
 case class Var(n:String) extends Term
 case class Apply(l:Term, r:Term) extends Term
 case class Lambda(v:String, t:Term) extends Term
+
+
+object DSL {
+  import Term._
+
+  /*
+    (all letters)
+    |
+    ^
+    &
+    < >
+    = !
+    :
+    + -
+    * / %
+   */
+
+  implicit class TermPimp(t0:Term) {
+    def ap(t1:Term):Term = A(t0,t1)
+    def <~(t1:Term):Term = A(t0,t1)
+  }
+
+  def Ls(s: Symbol, ss:Symbol*) = new Object {
+    def := : Term => Term = ss.foldLeft(L(s, _:Term)){ case (t0, s) => (t1:Term) => t0(L(s,t1)) }
+  }
+
+  import SampleTerms._
+
+  import scalaz.syntax.equal._
+
+  L('a, L('b, L('f, f ap a ap b ))) === pair
+  (Ls('a,'b,'f) := f ap a ap b) === pair
+  (Ls('a,'b,'f) := f <~ a <~ b) === pair
+
+  ( Ls('x,'y,'z) := x <~ z <~ ( y <~ z ) ) === S
+
+}
+
 
 object SampleTerms {
 
@@ -50,6 +89,8 @@ object SampleTerms {
   val self2 = A(self, self)
 
   val pair = L('a, L('b, L('f, A(A(f, a), b ) ))) // \a b f. f a b
+
+  val pair2 = L('a, L('b, L('f, A(A(f, a), b ) ))) // \a b f. f a b
 
   val zero = L('f, L('z, z))
   val succ = L('n, L('f, L('z, // \n\f\z. f (n f) z
@@ -97,7 +138,7 @@ object LambdaCalc {
       case Apply(_, _) => Apply(eval(l), r)         // t := x y N
     }
      // apply(l,r)
-    case Lambda(v, t) => Lambda(v,eval(t))
+    case Lambda(v, t) => Lambda(v,eval(t))  // t :=
   }
 
   import scalaz.syntax.equal._
