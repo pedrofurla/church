@@ -3,7 +3,7 @@
 module Grammar.DSL where
 
 --import qualified Prelude as P
-import Prelude(String, ($))
+import Prelude(String, ($), (==))
 
 import Grammar
 
@@ -32,11 +32,21 @@ infixl 5 ◦
 
 id, compose, const, true, false :: Term
 
+-- | Simple combinators
+--
+-- Examples:
+--
+-- >>> id == Lam "a" (Var "a")
+-- True
+--
+-- prop> id == Lam "a" (Var "a")
+-- 
+-- prop>  (==) const $ Lam "a" $ Lam "b" $ Var "a" 
+--
+-- 
 id = λ "a" $ v "a"
 compose = λ "f" $ λ "g" $ λ "a" $ App (App (v "f") (v "g")) $ v "a"
 const = λ "a" $ λ "b" $ v "a"
 true = const
 false = λ "a" $ λ "b" $ v "b" 
-
-
 

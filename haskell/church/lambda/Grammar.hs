@@ -9,7 +9,7 @@ data Term  =
     Var String
   | Lam String Term
   | App Term Term
-  deriving P.Show
+  deriving (P.Show, P.Eq)
 
 -- data Term a = 
 --  --   Val a 
@@ -30,6 +30,5 @@ data Term  =
 
 -- app :: Term
 -- app = 
-
 
 
