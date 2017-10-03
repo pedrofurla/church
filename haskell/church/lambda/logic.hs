@@ -9,7 +9,7 @@ true2 a b = a
 
 false2 ::  Bool a
 false2 a b = b
-	
+    
 --and2 :: Bool a -> Bool a -> Bool a
 and2 l r a b = l (r a b) (l a b)
 
